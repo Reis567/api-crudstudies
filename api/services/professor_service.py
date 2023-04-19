@@ -22,5 +22,5 @@ def atualiza_professor(professor_anterior, professor_novo):
 
 def remove_professor(professor):
     db.session.delete(professor)
-    db.session.commit
+    db.session.commit()
     

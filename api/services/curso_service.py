@@ -27,4 +27,4 @@ def atualiza_curso(curso_anterior, curso_novo):
 
 def remove_curso(curso):
     db.session.delete(curso)
-    db.session.commit
+    db.session.commit()

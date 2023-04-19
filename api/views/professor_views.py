@@ -6,12 +6,13 @@ from ..entidades import professor
 from ..services import professor_service
 from ..paginate import paginate
 from ..models.professor_model import Professor
+from ..decorator import admin_required
 
 class ProfessorList(Resource):
     def get(self):
         ps = professor_schema.ProfessorSchema(many=True)
         return paginate(Professor , ps)
-
+    @admin_required
     def post(self):
         ps = professor_schema.ProfessorSchema()
         validate = ps.validate(request.json)
@@ -33,7 +34,8 @@ class ProfessorDetail(Resource):
             return make_response(jsonify("Professor não foi encontrado"), 404)
         ps = professor_schema.ProfessorSchema()
         return make_response(ps.jsonify(professor), 200)
-
+    
+    @admin_required
     def put(self, id):
         professor_bd = professor_service.listar_professor_id(id)
         if professor_bd is None:
@@ -50,12 +52,15 @@ class ProfessorDetail(Resource):
             professor_atualizado = professor_service.listar_professor_id(id)
             return make_response(ps.jsonify(professor_atualizado), 200)
 
+    @admin_required
     def delete(self, id):
         professor_bd = professor_service.listar_professor_id(id)
         if professor_bd is None:
             return make_response(jsonify("Professor não encontrada"), 404)
-        professor_service.remove_professor(professor_bd)
-        return make_response('Professor excluído com sucesso', 204)
+            
+        else:
+            professor_service.remove_professor(professor_bd)
+            return make_response(jsonify('Professor excluído com sucesso'), 204)
 
 api.add_resource(ProfessorList, '/professores')
 api.add_resource(ProfessorDetail, '/professores/<int:id>')

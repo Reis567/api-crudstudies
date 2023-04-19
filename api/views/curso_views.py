@@ -6,7 +6,8 @@ from ..entidades import curso
 from ..services import curso_service, formacao_service
 from ..paginate import paginate
 from ..models.curso_model import Curso
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt
+from ..decorator import admin_required
 
 class CursoList(Resource):
     @jwt_required()
@@ -14,7 +15,7 @@ class CursoList(Resource):
         cs = curso_schema.CursoSchema(many=True)
         return paginate(Curso,cs)
 
-    @jwt_required()
+    @admin_required
     def post(self):
         cs = curso_schema.CursoSchema()
         validate = cs.validate(request.json)
@@ -45,7 +46,7 @@ class CursoDetail(Resource):
         cs = curso_schema.CursoSchema()
         return make_response(cs.jsonify(curso), 200)
 
-    @jwt_required()
+    @admin_required
     def put(self, id):
         curso_bd = curso_service.listar_curso_id(id)
         if curso_bd is None:
@@ -68,14 +69,14 @@ class CursoDetail(Resource):
             curso_service.atualiza_curso(curso_bd, novo_curso)
             curso_atualizado = curso_service.listar_curso_id(id)
             return make_response(cs.jsonify(curso_atualizado), 200)
-
-    @jwt_required()
+        
+    @admin_required
     def delete(self, id):
         curso_bd = curso_service.listar_curso_id(id)
         if curso_bd is None:
             return make_response(jsonify("Curso não encontrado"), 404)
         curso_service.remove_curso(curso_bd)
-        return make_response('Curso excluído com sucesso', 204)
+        return make_response(jsonify('Curso excluído com sucesso'), 204)
 
 api.add_resource(CursoList, '/cursos')
 api.add_resource(CursoDetail, '/cursos/<int:id>')
